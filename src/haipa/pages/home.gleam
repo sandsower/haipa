@@ -1,12 +1,10 @@
 import gleam/list
-import gleam/option.{type Option}
-import haipa/pages/layout
 import haipa/components/editor
 import haipa/components/preview
 import haipa/models.{type Document}
+import haipa/pages/layout
 import nakai/attr.{class, id}
-import nakai/html.{aside, button, div, form, main, nav, section, textarea_text}
-
+import nakai/html.{button, div, main, nav}
 
 fn header_component() -> html.Node {
   html.header([], [
@@ -60,7 +58,11 @@ fn toolbar_component() -> html.Node {
     ],
     [
       html.div([class("flex items-center gap-x-4")], [
-        button_component("Transform HTML", []),
+        button_component("Transform HTML", [
+          attr.Attr("hx-post", "transform"),
+          attr.Attr("hx-target", "#preview"),
+          attr.Attr("hx-swap", "outerHTML"),
+        ]),
         button_component("Copy Nakai code", []),
         button_component("Reset HTML content", []),
       ]),
@@ -73,7 +75,7 @@ pub fn page(document: Document) -> html.Node {
     layout.header("Editor"),
     html.Body([class("md:h-screen flex overflow-hidden")], [
       // sidebar_component(document),
-      main([class("pt-10 h-full w-full flex-grow md:flex md:flex-col")], [
+      html.form([class("pt-10 h-full w-full flex-grow md:flex md:flex-col")], [
         header_component(),
         div([], [
           main(
@@ -82,11 +84,11 @@ pub fn page(document: Document) -> html.Node {
                 "h-screen w-full grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-0",
               ),
             ],
-            [editor.render(document), preview.render()],
+            [editor.render(document), preview.render("")],
           ),
         ]),
+        toolbar_component(),
       ]),
-      toolbar_component(),
       // div([id("keymaps"), class("hidden")], [
     //   html.Text(keybindings.as_json(bindings())),
     // ]),
